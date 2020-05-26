@@ -33,7 +33,7 @@
         </label>
         {% else %}
         <label for="swatch-{{ option_index }}-{{ value | handle }}">
-          <input type="number" name="qty-{{ option_index }}-{{ value | handle }}" min="0" id="{{ variant.id }}">
+          <input type="number" name="qty-{{ option_index }}-{{ value | handle }}" value="0" min="0" id="{{ variant.id }}">
           <img class="crossed-out" src="{{ 'soldout.png' | asset_url }}" />
         </label>
         <span class="qty-label">{{ value }}</span>
