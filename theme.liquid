@@ -1,10 +1,11 @@
 <script>
-  jQuery(function() { //jQuery('.swatch :radio').change(function() {
+jQuery(function() {
   $(document).on('focus change', '.swatch :input',  function(e){
     var optionIndex = $(this).closest('.swatch').attr('data-option-index');
     var optionValue = $(this).parents('.swatch-element').find('[type="radio"]').val();
     $(this).closest('.swatch').find('[type="radio"]').prop('checked', false);
     $(this).parents('.swatch-element').find('[type="radio"]').prop('checked', true);
-    $(this).closest('form').find('.single-option-selector').eq(optionIndex).val(optionValue).trigger('change'); });
+    $(this).closest('form').find('.single-option-selector').eq(optionIndex).val(optionValue).trigger('change');
   });
+});
 </script>
