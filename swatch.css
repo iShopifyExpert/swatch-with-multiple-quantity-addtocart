@@ -53,6 +53,10 @@
     min-height: 33px;
     margin: 0 !important;
 }
+.swatch .swatch-element.soldout input[type="number"] {
+    background: url({{'soldout.png' | asset_url}});
+    background-size: 50px 32px;
+}
 .swatch .swatch-element .qty-label {
     display: block;
 }
