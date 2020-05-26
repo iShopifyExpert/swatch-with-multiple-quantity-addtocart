@@ -109,4 +109,158 @@
       jQuery(this).closest('form').find('.single-option-selector').eq(optionIndex).val(optionValue).trigger('change');
     });
   });
+
+  $(document).ready(function(){
+    var toAdd = new Array();
+    $(".product-form__cart-submit").click(function(){
+      event.preventDefault();
+      var $addToCartForm = $(this).closest('form');
+      var $addToCartBtn = $addToCartForm.find('.add_to_cart');
+      $('.checkoutLink').addClass('disabled');
+      var totalProduct = 0;
+      var count_input_value = 0;
+      $(".product-form .swatch  .available .swatch-qty").each(function(){
+        if($(this).val() > count_input_value){
+          count_input_value++;
+        }
+      });
+      var sum = 0;
+      $('.product-form .swatch .available .swatch-qty').each(function( index ) {
+        sum += Number($(this).val()); 
+      });
+      if(sum <1 ){ 
+        $('.add_to_cart').addClass('is-it-empty-fill-it');
+        alert("Please select a variant and quantity to add");
+      }
+      else{
+        if(count_input_value > 0){
+          $(".product-form .swatch  .available .swatch-qty").each(function(){
+            if($(this).val() > 0){
+              totalProduct++;
+              var get_id = $(this).parent().attr("v_id");
+              get_id = parseInt(get_id);
+              var get_qyt = $(this).val();
+              get_qyt = parseInt(get_qyt);
+              toAdd.push({
+                variant_id: get_id,
+                quantity_id: get_qyt
+              }); 
+            }
+          });
+          $('.add_to_cart').removeClass('is-it-empty-fill-it');
+          moveAlong(toAdd); 
+          var count = [];
+          var stop = 0;  
+          function moveAlong(toAdd) {
+            if (toAdd.length) {
+              stop++;
+              var request = toAdd.shift();
+              var tempId = request.variant_id;
+              var tempQty = request.quantity_id;
+              var params = {
+                type: 'POST',
+                url: '/cart/add.js',
+                data: 'quantity='+tempQty+'&id='+tempId+'',
+                dataType: 'json',
+                success: function(line_item) { 
+                  $('button.product-form__cart-submit').hide();
+                  $('button.adding-to-cart').css({"display": "block"});
+                  $('.site-header__cart-indicator').removeClass('hide');
+                  $addToCartBtn.attr('disabled', 'disabled').addClass('disabled');
+                  $addToCartBtn.find('span').removeClass("slideInLeft").addClass('animated slideOutRight');
+                  $addToCartBtn.find('.checkmark').addClass('checkmark-active');
+
+                  window.setTimeout(function(){
+                    $addToCartBtn.removeAttr('disabled').removeClass('disabled');
+                    $addToCartBtn.find('.checkmark').removeClass('checkmark-active');
+                    $addToCartBtn.find('span').removeClass('slideOutRight').addClass('slideInLeft');
+                  }, 1000);
+                  count.push(tempId);
+                  jQuery.ajax({ 
+                    url: "/cart.js",
+                    dataType: "json",
+                    success: function(cart){
+                      if (typeof shappify_qb_got_cart == 'function') {
+                        shappify_qb_got_cart(cart,function(cart){
+                          console.log('addd');
+                          //  window.location.href = "/cart";
+                        })
+                      } else {
+                        var cartItems = '';
+                        var html = $('<div></div>');
+                        $('#myModals').fadeIn(500);
+                        $.each( cart.items,function(index,item){
+                          if( stop <= 100 ){ 
+                            if( jQuery.inArray( item.id, count ) !== -1 ){
+                              html.prepend(' <div class="grid miniGrid">  '  + 
+                                           ' <div class="grid__item medium-up--one-fifth small--one-fifth">  '  + 
+                                           ' <img class="miniImg" src="'+item.image+'" alt="">  '  + 
+                                           '</div>  '  + 
+                                           ' <div class="grid__item medium-up--four-fifths small--four-fifths miniProDesc">  '  + 
+                                           ' <h1>'+item.product_title+'</h1>  '  + 
+                                           ' <p class="mini_var"> Color : '+item.variant_title+'</p>  '  + 
+                                           ' <p class="mini_qty"> Qty : '+item.quantity+'</p>  '  + 
+                                           ' <p class="mini_price" wholesale-data-key="'+item.id+'">$'+item.price/100+'</p>  '  + 
+                                           '</div>  '  + 
+                                           '</div>  ' ); 
+                            }
+                          }else{
+                            //    $('.viewMore').show();
+                            return false;
+                          }
+                        });
+                        if( stop == 3 ){ 
+                          $('.miniProduct').addClass('miniProductScroll');
+                          // $('.viewMore').show();
+                        }
+                        if( stop <= 100 ){
+                          $('#myModals .miniProduct').html(html);
+                        }
+                        $('#myModals .miniCartCount').html(cart.item_count);
+
+                        $.ajax({
+                          url: '/cart.js',
+                          dataType: "json",
+                          cache: false,
+                          success: function(cart) {
+                            //Theme.cart.refreshMiniCart(cart);
+                          }
+                        });
+                      }
+                    },
+                    error:function(msg){
+                      console.error(msg);
+                    }
+                  });
+                  setTimeout( function(){
+                    moveAlong(toAdd);
+                  },200);
+                },
+                error: function(xhr, status, error) {
+                  console.log(xhr.responseText + status + error);
+                  moveAlong(toAdd);
+                }
+              };
+              $.ajax(params);
+            }
+            else { 
+              $('button.product-form__cart-submit').show();
+              $('button.adding-to-cart').hide();
+              $('.swatch-qty').val('');
+              setTimeout( function(){
+                $('#myModals').fadeOut(800);
+              },4000);
+              setTimeout( function(){
+                $('.miniProduct').removeClass('miniProductScroll');
+              },5000);
+              //window.location.href = "/cart";
+            }  
+          }
+        }
+        else{
+          $(".emptyCart").show();
+        }
+      }
+    });
+  });
 </script>
