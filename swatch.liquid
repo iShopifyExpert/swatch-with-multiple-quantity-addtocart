@@ -17,7 +17,11 @@
 {% endfor %}
 {% unless found_option %}{% else %}
 <div class="swatch clearfix" data-option-index="{{ option_index }}">
+  <div class="half_width_x">
   <div class="header">{{ swatch }}</div>
+    <div class="header">Price Per</div>
+  </div>
+  <div class="spacing_blank"></div>
   {% assign values = '' %}
   {% for variant in product.variants %}
     {% assign value = variant.options[option_index] %}
@@ -33,9 +37,12 @@
         </label>
         {% else %}
         <label for="swatch-{{ option_index }}-{{ value | handle }}">
-          <input type="number" class="swatch-qty" name="qty-{{ option_index }}-{{ value | handle }}" value="0" min="0" id="{{ variant.id }}">
+          <input type="number" class="swatch-qty" name="qty-{{ option_index }}-{{ value | handle }}" value="0" min="0" id="{{ variant.id }}" data-price="{{ variant.price }}">
         </label>
+        <div class="half_width">
         <span class="qty-label">{{ value }}</span>
+        <span class="qty-price">{{ variant.price| money }}</span>
+        </div>
         {% endif %}
       </div>
     {% endunless %}
@@ -46,5 +53,6 @@
     {% endif %}
   {% endfor %}
 </div>
+<div class="total_price"></div>
 {% endunless %}
 {% endif %}
